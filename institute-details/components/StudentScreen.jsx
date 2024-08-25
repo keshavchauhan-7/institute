@@ -316,7 +316,7 @@ const StudentScreen = () => {
                 </div>
 
                 <button type="submit">Submit</button>
-                <button type="button" onClick={handleDownloadExcel}>Download in Excel</button>
+                <button className='excel-btn' type="button" onClick={handleDownloadExcel}>Download in Excel</button>
             </form>
         </div>
     );

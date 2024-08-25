@@ -49,4 +49,24 @@
   button[type='submit']:hover {
     background-color: #3182ce;
   }
+
+  .excel-btn{
+    position: fixed;
+    /* Fixes the button position relative to the viewport */
+    bottom: 20px;
+    /* Distance from the bottom of the viewport */
+    right: 20px;
+    /* Distance from the right of the viewport */
+    background-color: #4299e1;
+    color: white;
+    width: 200px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+  }
   
