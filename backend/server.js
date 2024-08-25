@@ -1,96 +1,9 @@
-// const express = require('express');
-// const mongoose = require('mongoose');
-// const cors = require('cors');
-// const path = require('path');
-
-// const app = express();
-// const port = 5000;
-
-// app.use(cors());
-// app.use(express.json());
-
-// mongoose.connect('mongodb://localhost:27017/institutesDB', {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// });
-
-// // Institute Schema
-// const instituteSchema = new mongoose.Schema({
-//   institute: String,
-//   address: String,
-//   contact: String,
-// });
-
-// const Institute = mongoose.model('Institute', instituteSchema);
-
-// // Student Schema
-// const studentSchema = new mongoose.Schema({
-//   batch: String,
-//   course: String,
-//   semester: String,
-//   contact: String,
-//   institute: { type: mongoose.Schema.Types.ObjectId, ref: 'Institute' }
-// });
-
-// const Student = mongoose.model('Student', studentSchema);
-
-// // Get institutes
-// app.get('/api/institutes', async (req, res) => {
-//   try {
-//     const institutes = await Institute.find();
-//     res.status(200).json(institutes);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// });
-
-// // Post new institute
-// app.post('/api/institutes', async (req, res) => {
-//   try {
-//     const newInstitute = new Institute(req.body);
-//     const savedInstitute = await newInstitute.save();
-//     res.status(201).json(savedInstitute);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// });
-
-// // Post student data
-// app.post('/api/students', async (req, res) => {
-//   try {
-//     const { batch, course, semester, contact, institute } = req.body;
-
-//     // Validate required fields
-//     if (!batch || !course || !semester || !contact || !institute) {
-//       return res.status(400).json({ message: 'All fields are required' });
-//     }
-
-//     // Create and save new student
-//     const newStudent = new Student({
-//       batch,
-//       course,
-//       semester,
-//       contact,
-//       institute
-//     });
-
-//     await newStudent.save();
-//     res.status(201).json({ message: 'Student data saved successfully' });
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// });
-
-// app.listen(port, () => {
-//   console.log(`Server running on http://localhost:${port}`);
-// });
-
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const ExcelJS = require('exceljs');
+
 const app = express();
 const port = 5000;
 
@@ -102,6 +15,7 @@ mongoose.connect('mongodb://localhost:27017/institutesDB', {
   useUnifiedTopology: true,
 });
 
+// Institute Schema
 const instituteSchema = new mongoose.Schema({
   institute: String,
   address: String,
@@ -110,6 +24,7 @@ const instituteSchema = new mongoose.Schema({
 
 const Institute = mongoose.model('Institute', instituteSchema);
 
+// Student Schema
 const studentSchema = new mongoose.Schema({
   batch: String,
   course: String,
@@ -120,6 +35,28 @@ const studentSchema = new mongoose.Schema({
 
 const Student = mongoose.model('Student', studentSchema);
 
+// Get institutes
+app.get('/api/institutes', async (req, res) => {
+  try {
+    const institutes = await Institute.find();
+    res.status(200).json(institutes);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Post new institute
+app.post('/api/institutes', async (req, res) => {
+  try {
+    const newInstitute = new Institute(req.body);
+    const savedInstitute = await newInstitute.save();
+    res.status(201).json(savedInstitute);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Post student data
 app.post('/api/students', async (req, res) => {
   try {
     const { batch, course, semester, contact, institute } = req.body;
@@ -137,7 +74,6 @@ app.post('/api/students', async (req, res) => {
     });
 
     await newStudent.save();
-
     res.status(201).json({ message: 'Student data saved successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
