@@ -9,34 +9,51 @@ const InstituteScreen = () => {
   const [selectedAddress, setSelectedAddress] = useState('');
   const [selectedContact, setSelectedContact] = useState('');
   const [entries, setEntries] = useState([]);
+  const [contactError, setContactError] = useState('');
+  const [formErrors, setFormErrors] = useState({
+    institute: '',
+    address: '',
+    contact: '',
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentEditId, setCurrentEditId] = useState(null);
 
-  const institutes = ['Institute 1', 'Institute 2', 'Institute 3'];
-  const addresses = ['Address 1', 'Address 2', 'Address 3'];
-  const contacts = ['1234567890', '0987654321', '1122334455'];
-
-  // Fetch the data from the backend when the component mounts
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log('Fetching data from backend...');
         const response = await fetch('http://localhost:5000/api/institutes');
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
         const data = await response.json();
-        console.log('Data fetched:', data);
         setEntries(data);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       }
     };
-
-
     fetchData();
   }, []);
 
   const handleAddEntry = async () => {
-    if (selectedInstitute && selectedAddress && selectedContact) {
+    const errors = {
+      institute: '',
+      address: '',
+      contact: '',
+    };
+
+    if (!selectedInstitute) {
+      errors.institute = 'Institute Name is required.';
+    }
+    if (!selectedAddress) {
+      errors.address = 'Address is required.';
+    }
+    if (!selectedContact) {
+      errors.contact = 'Contact No. is required.';
+    }
+    if (contactError) {
+      errors.contact = contactError;
+    }
+
+    setFormErrors(errors);
+
+    if (Object.values(errors).every(error => error === '')) {
       const newEntry = {
         institute: selectedInstitute,
         address: selectedAddress,
@@ -44,20 +61,34 @@ const InstituteScreen = () => {
       };
 
       try {
-        const response = await fetch('http://localhost:5000/api/institutes', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newEntry),
-        });
+        let response;
+        if (isEditing) {
+          response = await fetch(`http://localhost:5000/api/institutes/${currentEditId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newEntry),
+          });
+        } else {
+          response = await fetch('http://localhost:5000/api/institutes', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newEntry),
+          });
+        }
 
         if (response.ok) {
           const savedEntry = await response.json();
-          console.log('Entry saved:', savedEntry);
-          setEntries([...entries, savedEntry]);
-
-          // Clear the selections
+          if (isEditing) {
+            setEntries(entries.map(entry => entry._id === currentEditId ? savedEntry : entry));
+            setIsEditing(false);
+            setCurrentEditId(null);
+          } else {
+            setEntries([...entries, savedEntry]);
+          }
           setSelectedInstitute('');
           setSelectedAddress('');
           setSelectedContact('');
@@ -70,27 +101,61 @@ const InstituteScreen = () => {
     }
   };
 
+  const handleEdit = (entry) => {
+    setSelectedInstitute(entry.institute);
+    setSelectedAddress(entry.address);
+    setSelectedContact(entry.contact);
+    setIsEditing(true);
+    setCurrentEditId(entry._id);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/institutes/${id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setEntries(entries.filter(entry => entry._id !== id));
+      } else {
+        console.error('Failed to delete the entry');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const validateContact = (contact) => {
+    if (/^\d{10}$/.test(contact)) {
+      setContactError('');
+    } else {
+      setContactError('Please enter a valid 10-digit contact number.');
+    }
+    setSelectedContact(contact);
+  };
+
+  const handleKeyPress = (e) => {
+    if (!/^\d$/.test(e.key)) {
+      e.preventDefault();
+    }
+  };
+
   return (
     <div className="container">
       <div className="card">
-        <h2>Select Institute Details</h2>
+        <h2>{isEditing ? 'Edit' : 'Enter'} Institute Details</h2>
 
         <div className="form-group">
           <div style={{ display: 'flex', gap: '5px' }}>
             <FaBuilding style={{ position: 'relative', top: '2px' }} />
             <label>Institute Name:</label>
           </div>
-          <select
+          <input
+            type="text"
             value={selectedInstitute}
             onChange={(e) => setSelectedInstitute(e.target.value)}
-          >
-            <option value="">Select Institute</option>
-            {institutes.map((institute, index) => (
-              <option key={index} value={institute}>
-                {institute}
-              </option>
-            ))}
-          </select>
+            placeholder="Enter Institute Name"
+          />
+          {formErrors.institute && <p className="error">{formErrors.institute}</p>}
         </div>
 
         <div className="form-group">
@@ -98,17 +163,13 @@ const InstituteScreen = () => {
             <FaLocationDot style={{ position: 'relative', top: '2px' }} />
             <label>Address:</label>
           </div>
-          <select
+          <input
+            type="text"
             value={selectedAddress}
             onChange={(e) => setSelectedAddress(e.target.value)}
-          >
-            <option value="">Select Address</option>
-            {addresses.map((address, index) => (
-              <option key={index} value={address}>
-                {address}
-              </option>
-            ))}
-          </select>
+            placeholder="Enter Address"
+          />
+          {formErrors.address && <p className="error">{formErrors.address}</p>}
         </div>
 
         <div className="form-group">
@@ -116,21 +177,18 @@ const InstituteScreen = () => {
             <FaPhoneAlt style={{ position: 'relative', top: '2px' }} />
             <label>Contact No.:</label>
           </div>
-          <select
+          <input
+            type="text"
             value={selectedContact}
-            onChange={(e) => setSelectedContact(e.target.value)}
-          >
-            <option value="">Select Contact No.</option>
-            {contacts.map((contact, index) => (
-              <option key={index} value={contact}>
-                {contact}
-              </option>
-            ))}
-          </select>
+            onChange={(e) => validateContact(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Enter Contact No."
+          />
+          {formErrors.contact && <p className="error">{formErrors.contact}</p>}
         </div>
 
         <button className='add-btn' onClick={handleAddEntry}>
-          Add
+          {isEditing ? 'Update' : 'Add'}
         </button>
       </div>
 
@@ -154,6 +212,7 @@ const InstituteScreen = () => {
                     <FaPhoneAlt /> <span>Contact No.</span>
                   </div>
                 </th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -162,6 +221,10 @@ const InstituteScreen = () => {
                   <td>{entry.institute}</td>
                   <td>{entry.address}</td>
                   <td>{entry.contact}</td>
+                  <td>
+                    <button onClick={() => handleEdit(entry)}>Edit</button>
+                    <button onClick={() => handleDelete(entry._id)}>Delete</button>
+                  </td>
                 </tr>
               ))}
             </tbody>
