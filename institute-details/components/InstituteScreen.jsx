@@ -31,6 +31,7 @@ const InstituteScreen = () => {
       }
     };
 
+
     fetchData();
   }, []);
 
