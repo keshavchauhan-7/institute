@@ -15,6 +15,43 @@ mongoose.connect('mongodb://localhost:27017/institutesDB', {
   useUnifiedTopology: true,
 });
 
+// PUT endpoint to update an institute by ID
+app.put('/api/institutes/:id', async (req, res) => {
+  try {
+    const updatedInstitute = await Institute.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    res.status(200).json(updatedInstitute);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// DELETE endpoint with ID validation
+app.delete('/api/institutes/:id', async (req, res) => {
+  const { id } = req.params;
+
+  // Validate ID format
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'Invalid ID format' });
+  }
+
+  try {
+    const deletedInstitute = await Institute.findByIdAndDelete(id);
+
+    if (!deletedInstitute) {
+      return res.status(404).json({ message: 'Institute not found' });
+    }
+
+    res.status(200).json({ message: 'Institute deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Institute Schema
 const instituteSchema = new mongoose.Schema({
   institute: String,
@@ -26,6 +63,7 @@ const Institute = mongoose.model('Institute', instituteSchema);
 
 // Student Schema
 const studentSchema = new mongoose.Schema({
+  name: String,
   batch: String,
   course: String,
   semester: String,
@@ -59,19 +97,21 @@ app.post('/api/institutes', async (req, res) => {
 // Post student data
 app.post('/api/students', async (req, res) => {
   try {
-    const { batch, course, semester, contact, institute } = req.body;
+    const { name, batch, course, semester, contact, institute } = req.body;
 
-    if (!batch || !course || !semester || !contact || !institute) {
+    if (!name || !batch || !course || !semester || !contact || !institute) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
     const newStudent = new Student({
+      name,
       batch,
       course,
       semester,
       contact,
       institute
     });
+    
 
     await newStudent.save();
     res.status(201).json({ message: 'Student data saved successfully' });
@@ -79,6 +119,80 @@ app.post('/api/students', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+// Get all students
+app.get('/api/students', async (req, res) => {
+  try {
+    const students = await Student.find().populate('institute');
+    res.status(200).json(students);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
+
+
+
+
+
+
+// PUT endpoint to update student by ID
+app.put('/api/students/:id', async (req, res) => {
+  try {
+    const updatedStudent = await Student.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    res.status(200).json(updatedStudent);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// DELETE endpoint to delete student by ID
+app.delete('/api/students/:id', async (req, res) => {
+  const { id } = req.params;
+
+  // Validate ID format
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'Invalid ID format' });
+  }
+
+  try {
+    const deletedStudent = await Student.findByIdAndDelete(id);
+
+    if (!deletedStudent) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    res.status(200).json({ message: 'Student deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Endpoint to generate and download the Excel file
 app.get('/api/download-students', async (req, res) => {
@@ -89,6 +203,7 @@ app.get('/api/download-students', async (req, res) => {
     const worksheet = workbook.addWorksheet('Students');
 
     worksheet.columns = [
+      { header: 'Name', key: 'name', width: 20 },
       { header: 'Batch', key: 'batch', width: 20 },
       { header: 'Course', key: 'course', width: 20 },
       { header: 'Semester', key: 'semester', width: 20 },
@@ -98,6 +213,7 @@ app.get('/api/download-students', async (req, res) => {
 
     students.forEach(student => {
       worksheet.addRow({
+        name: student.name,
         batch: student.batch,
         course: student.course,
         semester: student.semester,

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FaBuilding, FaPhoneAlt } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
+import { FaEdit } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 import { Link } from 'react-router-dom';
 import './InstituteScreen.css';
 
@@ -17,6 +19,8 @@ const InstituteScreen = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [currentEditId, setCurrentEditId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -116,6 +120,8 @@ const InstituteScreen = () => {
       });
       if (response.ok) {
         setEntries(entries.filter(entry => entry._id !== id));
+        setShowDeleteModal(false);
+        setDeleteId(null);
       } else {
         console.error('Failed to delete the entry');
       }
@@ -139,14 +145,24 @@ const InstituteScreen = () => {
     }
   };
 
+  const openDeleteModal = (id) => {
+    setShowDeleteModal(true);
+    setDeleteId(id);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setDeleteId(null);
+  };
+
   return (
-    <div className="container">
-      <div className="card">
+    <div className="institute-container">
+      <div className="institute-card">
         <h2>{isEditing ? 'Edit' : 'Enter'} Institute Details</h2>
 
         <div className="form-group">
-          <div style={{ display: 'flex', gap: '5px' }}>
-            <FaBuilding style={{ position: 'relative', top: '2px' }} />
+          <div className="form-label">
+            <FaBuilding className="form-icon" />
             <label>Institute Name:</label>
           </div>
           <input
@@ -159,8 +175,8 @@ const InstituteScreen = () => {
         </div>
 
         <div className="form-group">
-          <div style={{ display: 'flex', gap: '5px' }}>
-            <FaLocationDot style={{ position: 'relative', top: '2px' }} />
+          <div className="form-label">
+            <FaLocationDot className="form-icon" />
             <label>Address:</label>
           </div>
           <input
@@ -173,8 +189,8 @@ const InstituteScreen = () => {
         </div>
 
         <div className="form-group">
-          <div style={{ display: 'flex', gap: '5px' }}>
-            <FaPhoneAlt style={{ position: 'relative', top: '2px' }} />
+          <div className="form-label">
+            <FaPhoneAlt className="form-icon" />
             <label>Contact No.:</label>
           </div>
           <input
@@ -187,7 +203,7 @@ const InstituteScreen = () => {
           {formErrors.contact && <p className="error">{formErrors.contact}</p>}
         </div>
 
-        <button className='add-btn' onClick={handleAddEntry}>
+        <button className='submit-btn' onClick={handleAddEntry}>
           {isEditing ? 'Update' : 'Add'}
         </button>
       </div>
@@ -198,17 +214,17 @@ const InstituteScreen = () => {
             <thead>
               <tr>
                 <th>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div className="table-header">
                     <FaBuilding /> <span>Institute Name</span>
                   </div>
                 </th>
                 <th>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div className="table-header">
                     <FaLocationDot /><span> Address </span>
                   </div>
                 </th>
                 <th>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div className="table-header">
                     <FaPhoneAlt /> <span>Contact No.</span>
                   </div>
                 </th>
@@ -217,13 +233,15 @@ const InstituteScreen = () => {
             </thead>
             <tbody>
               {entries.map((entry, index) => (
-                <tr key={index}>
+                <tr key={index} className="table-row">
                   <td>{entry.institute}</td>
                   <td>{entry.address}</td>
                   <td>{entry.contact}</td>
                   <td>
-                    <button onClick={() => handleEdit(entry)}>Edit</button>
-                    <button onClick={() => handleDelete(entry._id)}>Delete</button>
+                    <div className="actions">
+                      <FaEdit className='icon edit' onClick={() => handleEdit(entry)} />
+                      <MdDelete className='icon delete' onClick={() => openDeleteModal(entry._id)} />
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -237,6 +255,17 @@ const InstituteScreen = () => {
       <Link to="/student" className="link-button">
         Go to Student Screen
       </Link>
+
+      {showDeleteModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Confirm Deletion</h3>
+            <p>Are you sure you want to delete this entry?</p>
+            <button className="modal-btn" onClick={() => handleDelete(deleteId)}>Yes</button>
+            <button className="modal-btn" onClick={closeDeleteModal}>No</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
