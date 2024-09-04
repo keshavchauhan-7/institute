@@ -4,7 +4,11 @@ import { FaLocationDot } from "react-icons/fa6";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { Link } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './InstituteScreen.css';
+import Typewriter from 'typewriter-effect';
+
 
 const InstituteScreen = () => {
   const [selectedInstitute, setSelectedInstitute] = useState('');
@@ -29,7 +33,7 @@ const InstituteScreen = () => {
         const data = await response.json();
         setEntries(data);
       } catch (error) {
-        console.error('Failed to fetch data:', error);
+        toast.error('Failed to fetch data.');
       }
     };
     fetchData();
@@ -90,17 +94,19 @@ const InstituteScreen = () => {
             setEntries(entries.map(entry => entry._id === currentEditId ? savedEntry : entry));
             setIsEditing(false);
             setCurrentEditId(null);
+            toast.success('Entry updated successfully.');
           } else {
             setEntries([...entries, savedEntry]);
+            toast.success('Entry added successfully.');
           }
           setSelectedInstitute('');
           setSelectedAddress('');
           setSelectedContact('');
         } else {
-          console.error('Failed to save the entry');
+          toast.error('Failed to save the entry.');
         }
       } catch (error) {
-        console.error('Error:', error);
+        toast.error('Error occurred.');
       }
     }
   };
@@ -122,11 +128,12 @@ const InstituteScreen = () => {
         setEntries(entries.filter(entry => entry._id !== id));
         setShowDeleteModal(false);
         setDeleteId(null);
+        toast.success('Entry deleted successfully.');
       } else {
-        console.error('Failed to delete the entry');
+        toast.error('Failed to delete the entry.');
       }
     } catch (error) {
-      console.error('Error:', error);
+      toast.error('Error occurred.');
     }
   };
 
@@ -155,11 +162,31 @@ const InstituteScreen = () => {
     setDeleteId(null);
   };
 
+
   return (
     <div className="institute-container">
-      <div className="institute-card">
-        <h2>{isEditing ? 'Edit' : 'Enter'} Institute Details</h2>
+      <div
+        style={{
+          textAlign: 'center',
+          fontSize: '50px',
+          fontFamily: 'monospace',
+          background: 'linear-gradient(to left, #5f0f40, #9a031e)', // Gradient for text
+          WebkitBackgroundClip: 'text', // Clip the background to text
+          WebkitTextFillColor: 'transparent' // Make the text color transparent
+        }}
+      >
+        <Typewriter
+          options={{
+            strings: ['Institutes Screen'],
+            autoStart: true,
+            loop: true,
+            delay: 75, // Optional: Adjust typing speed
+          }}
+        />
+      </div>
 
+      <div className="institute-card">
+        <h2 style={{ fontFamily: 'cursive', padding: 10, fontWeight: 800 }}>{isEditing ? 'Edit' : 'Enter'} Institute Details</h2>
         <div className="form-group">
           <div className="form-label">
             <FaBuilding className="form-icon" />
@@ -239,8 +266,8 @@ const InstituteScreen = () => {
                   <td>{entry.contact}</td>
                   <td>
                     <div className="actions">
-                      <FaEdit className='icon edit' onClick={() => handleEdit(entry)} />
-                      <MdDelete className='icon delete' onClick={() => openDeleteModal(entry._id)} />
+                      <FaEdit className='icon editicon' onClick={() => handleEdit(entry)} />
+                      <MdDelete className='icon deleteicon' onClick={() => openDeleteModal(entry._id)} />
                     </div>
                   </td>
                 </tr>
@@ -266,6 +293,8 @@ const InstituteScreen = () => {
           </div>
         </div>
       )}
+
+      <ToastContainer />
     </div>
   );
 };

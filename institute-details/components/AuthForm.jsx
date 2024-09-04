@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-import './AuthForm.css';
 import { FaGooglePlusG } from "react-icons/fa";
 import { FaFacebookF } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa";
 import { FaLinkedinIn } from "react-icons/fa";
-
-
+import './AuthForm.css';
 
 
 const AuthForm = () => {
     const [isSignUp, setIsSignUp] = useState(false);
 
     const handleToggle = () => {
-        setIsSignUp(prev => !prev); 
+        setIsSignUp(prev => !prev);
     };
 
     return (

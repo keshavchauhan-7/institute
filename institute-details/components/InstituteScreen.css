@@ -1,8 +1,10 @@
 /* Container */
 .institute-container {
     padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
+    margin: 20px;
+    background: linear-gradient(135deg, #ff8fab, #0f4c5c); /* Updated background with gradient */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Card */
@@ -26,7 +28,7 @@
 }
 
 .form-icon {
-    color: #007bff;
+    color: #e36414; /* Updated color */
 }
 
 input[type="text"] {
@@ -38,7 +40,7 @@ input[type="text"] {
 }
 
 .submit-btn {
-    background-color: #007bff;
+    background-color: #9a031e; /* Updated color */
     color: #fff;
     padding: 10px 20px;
     border: none;
@@ -48,12 +50,12 @@ input[type="text"] {
 }
 
 .submit-btn:hover {
-    background-color: #0056b3;
+    background-color: #5f0f40; /* Updated color */
 }
 
 /* Error Messages */
 .error {
-    color: #ff4d4d;
+    color: #fb8b24; /* Updated color */
     font-size: 0.875rem;
 }
 
@@ -76,21 +78,18 @@ table td {
 }
 
 table th {
-    background-color: #f8f9fa;
+    background-color: #e36414; /* Updated color */
 }
 
 .table-header {
     display: flex;
     align-items: center;
-    /* justify-content: center; */
     gap: 6px;
 }
 
 .table-row:hover {
     background-color: #f1f1f1;
 }
-
-tr {}
 
 .actions {
     display: flex;
@@ -104,19 +103,22 @@ tr {}
     transition: color 0.3s ease;
 }
 
-.icon.edit:hover {
-    color: #0056b3;
+.editicon:hover{
+    color: #6a994e; /* Updated color */
 }
 
-.icon.delete:hover {
-    color: #ff4d4d;
+.deleteicon:hover{
+    color: #e63946;
 }
+
+
+
 
 /* Link Button */
 .link-button {
     display: inline-block;
     margin-top: 20px;
-    background-color: #007bff;
+    background-color: #9a031e; /* Updated color */
     color: #fff;
     padding: 10px 20px;
     border-radius: 4px;
@@ -126,7 +128,7 @@ tr {}
 }
 
 .link-button:hover {
-    background-color: #0056b3;
+    background-color: #5f0f40; /* Updated color */
 }
 
 /* Modal */
@@ -151,7 +153,7 @@ tr {}
 }
 
 .modal-btn {
-    background-color: #007bff;
+    background-color: #9a031e; /* Updated color */
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -162,5 +164,5 @@ tr {}
 }
 
 .modal-btn:hover {
-    background-color: #0056b3;
+    background-color: #5f0f40; /* Updated color */
 }

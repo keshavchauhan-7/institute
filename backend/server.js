@@ -67,7 +67,7 @@ const studentSchema = new mongoose.Schema({
   batch: String,
   course: String,
   semester: String,
-  contact: String,
+  email: String,
   institute: { type: mongoose.Schema.Types.ObjectId, ref: 'Institute' }
 });
 
@@ -97,9 +97,9 @@ app.post('/api/institutes', async (req, res) => {
 // Post student data
 app.post('/api/students', async (req, res) => {
   try {
-    const { name, batch, course, semester, contact, institute } = req.body;
+    const { name, batch, course, semester, email, institute } = req.body;
 
-    if (!name || !batch || !course || !semester || !contact || !institute) {
+    if (!name || !batch || !course || !semester || !email || !institute) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
@@ -108,10 +108,10 @@ app.post('/api/students', async (req, res) => {
       batch,
       course,
       semester,
-      contact,
+      email,
       institute
     });
-    
+
 
     await newStudent.save();
     res.status(201).json({ message: 'Student data saved successfully' });
@@ -129,11 +129,6 @@ app.get('/api/students', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
-
-
-
-
 
 
 
@@ -174,26 +169,6 @@ app.delete('/api/students/:id', async (req, res) => {
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Endpoint to generate and download the Excel file
 app.get('/api/download-students', async (req, res) => {
   try {
@@ -207,7 +182,7 @@ app.get('/api/download-students', async (req, res) => {
       { header: 'Batch', key: 'batch', width: 20 },
       { header: 'Course', key: 'course', width: 20 },
       { header: 'Semester', key: 'semester', width: 20 },
-      { header: 'Contact', key: 'contact', width: 20 },
+      { header: 'Email', key: 'email', width: 20 },
       { header: 'Institute', key: 'institute', width: 20 }
     ];
 
@@ -217,7 +192,7 @@ app.get('/api/download-students', async (req, res) => {
         batch: student.batch,
         course: student.course,
         semester: student.semester,
-        contact: student.contact,
+        email: student.email,
         institute: student.institute.institute
       });
     });
